@@ -1,26 +1,185 @@
 @import "tailwindcss";
 
+/* Color palette */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+    --background-black: #080808;
+    --neon-purple-950: #260b6a;
+    --neon-purple-600: #6528F7;  /* Base color */
+    --neon-purple-400: #9b85ff;
+    --neon-purple-200: #d9d4ff;
+    --neon-purple-100: #eae8ff;
+    --neon-purple-100-fade: rgba(234, 232, 255, 0.05);
+    --neon-purple-200-lfade: rgba(217, 212, 255, 0.85);
+    --neon-purple-200-mid: rgba(217, 212, 255, 0.5);
+    --neon-purple-200-fade: rgba(217, 212, 255, 0.25);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+    font-family: var(--font-poppins);
+    letter-spacing: 0.6px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+    scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    width: 100vw;
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: var(--neon-purple-100);
+    background: linear-gradient(
+        180deg,
+        var(--background-black) 15%,
+        var(--neon-purple-600)
+    );
+    background-size: 120% 120%;
+    animation: light-up 5s ease-in-out infinite;
+}
+
+@keyframes light-up {
+    0%, 100% {
+        background-position: 0% 0%;
+    }
+    50% {
+        background-position: 50% 50%;
+    }
+}
+
+button {
+    cursor: pointer;
+}
+
+.glass {
+    z-index: 10;
+    border-color: var(--neon-purple-200-fade);
+    background-color: var(--neon-purple-100-fade);
+    border-width: 1.2px;
+    border-radius: 32px;
+    padding: 0.6em 3.2em;
+    box-sizing: border-box;
+    backdrop-filter: blur(12px);
+}
+
+.header-text {
+    z-index: 10;
+    padding: 0.6em 2.4em;
+    box-sizing: border-box;
+}
+
+.button-underline {
+    border-color: var(--neon-purple-200-mid);
+    border-width: 1.2px;
+}
+
+.header-button .button-underline {
+    width: 0%;
+    opacity: 0;
+    transition: 240ms ease-out;
+}
+
+.header-button:hover .button-underline {
+    width: 100%;
+    opacity: 1;
+}
+
+.footer {
+    opacity: 0.5;
+}
+
+.form {
+    padding: 2.4em;
+    box-sizing: border-box;
+}
+
+.input {
+    border-color: var(--neon-purple-200-fade);
+    border-width: 1.2px;
+    border-radius: 32px;
+    padding: 0.6em 1.2em;
+    outline: none;
+}
+
+.input::placeholder {
+    color: var(--neon-purple-200-mid);
+}
+
+.background {
+    z-index: -1;
+}
+
+.front {
+    z-index: 1;
+    text-shadow: 0px 0px 32px var(--neon-purple-200-fade)
+}
+
+.circle-silhouette-outer {
+    background: radial-gradient( 
+        var(--neon-purple-600) 60%, 
+        var(--neon-purple-400) 64%,
+        var(--neon-purple-600) 64%, 
+        var(--neon-purple-200) 80%
+    );
+    padding: 2em 0em 0 0em;
+    box-sizing: border-box;
+}
+
+.circle-silhouette-inner {
+    width: 120%;
+    height: 102%;
+    background: linear-gradient(
+        var(--background-black), 
+        var(--neon-purple-950)
+    );
+    animation: scale-up-down 2.5s ease-in-out infinite;
+}
+
+@keyframes scale-up-down {
+    0%, 100% {
+        transform: scale(102%);
+    }
+    50% {
+        transform: scale(100%);
+    }
+}
+
+.hastag {
+    text-decoration: none;
+    color: var(--neon-purple-200-mid);
+}
+
+.hastag::after {
+    content: "|";
+    animation: blink-cursor 1s infinite;
+}
+  
+@keyframes blink-cursor {
+    0%, 100% { 
+        opacity: 1; 
+    }
+    50% { 
+        opacity: 0; 
+    }
+}
+
+.solid-button {
+    color: var(--background-black);
+    background-color: var(--neon-purple-100);
+    padding: 0.6em 0em;
+    box-sizing: border-box;
+    border-radius: 32px;
+    transition: 200ms ease-out;
+}
+
+.solid-button:hover {
+    background-color: var(--neon-purple-200);
+    box-shadow: 0px 0px 24px var(--neon-purple-200-fade);
+}
+
+.link-button {
+    transition: 240ms ease-out;
+}
+
+.link-button:hover {
+    color: var(--neon-purple-200-lfade);
 }
