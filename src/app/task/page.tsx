@@ -1,61 +1,103 @@
-"use client";  // Marks this component as a Client Component
+"use client";
 
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export default function Signin() {
-    const router = useRouter();
+type Task = {
+  id: number;
+  title: string;
+};
 
-    return (
-        <div className="flex flex-col w-full h-full items-center">
-            {/* Header */}
-            <div className="header-text fixed w-full flex flex-row top-[4%] items-center justify-between">
-                <button className="link-button text-[12pt] font-semibold" onClick={() => router.push("/")}>TaskStack</button>
-                <div className="flex gap-[1.6em] items-center justify-center">
-                    {/* TODO: Add conditions  */}
-                    <button className="link-button text-[10pt] flex flex-col justify-center items-center text-center" onClick={() => router.push("/signin")}>
-                        Sign In
-                    </button>
-                    <button className="link-button text-[10pt] flex flex-col justify-center items-center text-center" onClick={() => router.push("/signup")}>
-                        Sign Up
-                    </button>
-                </div>
-            </div>
+export default function TaskPage() {
+  const router = useRouter();
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [newTask, setNewTask] = useState("");
 
-            {/* Navigation bar */}
-            <div className="glass fixed flex gap-[2.4em] top-[4%] items-center justify-center">
-                <button className="header-button text-[12pt] flex flex-col justify-center items-center text-center" onClick={() => router.push("/")}>
-                    Home
-                    <hr className="button-underline" />
-                </button>
-                <button className="header-button text-[12pt] flex flex-col justify-center items-center text-center" onClick={() => router.push("/task")}>
-                    Task
-                    <hr className="button-underline" />
-                </button>
-                <button className="header-button text-[12pt] flex flex-col justify-center items-center text-center" onClick={() => router.push("/about")}>
-                    About
-                    <hr className="button-underline" />
-                </button>
-            </div>
+  const fetchTasks = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login first.");
+      router.push("/signin");
+      return;
+    }
 
-            {/* Main container */}
-            <div className="w-[100vw] h-[100vh] top-[0%] fixed flex items-center justify-center">
-                <div className="glass form w-[80vw] flex flex-col gap-[1.2em] items-center justify-center">
-                    {/* TODO: Task (CRUD (Create task, Read task, Update task, & Delete task)) */}
-                </div>
-            </div>
+    try {
+      const res = await fetch("https://api-todo-list-pbw.vercel.app/todo", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-            {/* Footer */}
-            <div className="front footer fixed w-full h-[10%] top-[85%] flex flex-col items-center justify-end">
-                <p className="text-[8pt]">Copyright &copy; 2025 TaskStack. All rights reserved.</p>
-            </div>
+      const data = await res.json();
+      setTasks(data.data); // `data` mungkin punya struktur { data: [...] }
+    } catch (error) {
+      console.error("Failed to fetch tasks", error);
+    }
+  };
 
-            {/* Purple cicle silhouette background */}
-            <div className="background absolute flex justify-center w-[120vw] h-[65vh] overflow-hidden">
-                <div className="circle-silhouette-outer translate-y-[2em] overflow-hidden absolute w-full h-[120%] rounded-t-[100%]"></div>
-                <div className="circle-silhouette-outer translate-y-[2em] overflow-hidden absolute w-full h-[120%] flex justify-center items-center rounded-t-[100%] blur-[12px] brightness-[120%]">
-                    <div className="circle-silhouette-inner translate-y-[-2px] rounded-t-[100%] blur-[32px]"></div>
-                </div>
-            </div>
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const handleAddTask = async () => {
+    if (!newTask.trim()) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login first.");
+      router.push("/signin");
+      return;
+    }
+
+    try {
+      const res = await fetch("https://api-todo-list-pbw.vercel.app/todo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title: newTask }),
+      });
+
+      const data = await res.json();
+      setTasks((prev) => [...prev, data.data]); // `data.data` berisi task baru
+      setNewTask("");
+    } catch (error) {
+      console.error("Failed to add task", error);
+    }
+  };
+
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <div className="w-full max-w-md space-y-4">
+        <h1 className="text-3xl font-bold text-center">Task List</h1>
+
+        <div className="flex gap-2">
+          <Input
+            placeholder="Add a new task"
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+          />
+          <Button onClick={handleAddTask}>
+            <Plus className="h-4 w-4 mr-1" />
+            Add
+          </Button>
         </div>
-    );
+
+        <div className="space-y-2">
+          {tasks.map((task) => (
+            <Card key={task.id}>
+              <CardContent className="p-4">
+                <p>{task.title}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </main>
+  );
 }
