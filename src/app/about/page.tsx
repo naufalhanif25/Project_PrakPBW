@@ -1,23 +1,23 @@
 "use client";  // Marks this component as a Client Component
 
 import { useRouter } from "next/navigation";
+import { HaveSignedIn } from "../components";
+import { User } from "../user";
 
 export default function Signin() {
     const router = useRouter();
 
+    // Get user status and data
+    const userInstance = User.getInstance();
+    const fullName = userInstance.getFullName()
+
     return (
-        <div className="flex flex-col w-full h-full items-center">
+        <div className="flex flex-col w-full h-screen items-center overflow-hidden">
             {/* Header */}
             <div className="header-text fixed w-full flex flex-row top-[4%] items-center justify-between">
                 <button className="link-button text-[12pt] font-semibold" onClick={() => router.push("/")}>TaskStack</button>
                 <div className="flex gap-[1.6em] items-center justify-center">
-                    {/* TODO: Add conditions  */}
-                    <button className="link-button text-[10pt] flex flex-col justify-center items-center text-center" onClick={() => router.push("/signin")}>
-                        Sign In
-                    </button>
-                    <button className="link-button text-[10pt] flex flex-col justify-center items-center text-center" onClick={() => router.push("/signup")}>
-                        Sign Up
-                    </button>
+                    <HaveSignedIn signin={userInstance.getSigninStatus()} fullName={fullName}/>
                 </div>
             </div>
 
@@ -38,7 +38,7 @@ export default function Signin() {
             </div>
 
             {/* Main container */}
-            <div className="w-[100vw] h-[100vh] top-[0%] fixed flex items-center justify-center">
+            <div className="w-screen h-screen top-0 fixed flex items-center justify-center">
                 <div className="glass form w-[80vw] flex flex-col gap-[1.2em] items-center justify-center">
                     <h1 className="text-[16pt] font-semibold">About</h1>
                     <p className="text-[12pt] w-full text-center">
@@ -48,13 +48,13 @@ export default function Signin() {
             </div>
 
             {/* Footer */}
-            <div className="front footer fixed w-full h-[10%] top-[85%] flex flex-col items-center justify-end">
+            <div className="front footer fixed w-full h-[10%] bottom-10 flex flex-col items-center justify-end">
                 <p className="text-[8pt]">Copyright &copy; 2025 TaskStack. All rights reserved.</p>
             </div>
 
             {/* Purple cicle silhouette background */}
-            <div className="background absolute flex justify-center w-[120vw] h-[65vh] overflow-hidden">
-                <div className="circle-silhouette-outer translate-y-[2em] overflow-hidden absolute w-full h-[120%] rounded-t-[100%]"></div>
+            <div className="background absolute flex justify-center w-[120vw] h-[50vh] bottom-[0%] overflow-hidden">
+                <div className="translate-y-[2em] overflow-hidden absolute w-full h-[120%] rounded-t-[100%]"></div>
                 <div className="circle-silhouette-outer translate-y-[2em] overflow-hidden absolute w-full h-[120%] flex justify-center items-center rounded-t-[100%] blur-[12px] brightness-[120%]">
                     <div className="circle-silhouette-inner translate-y-[-2px] rounded-t-[100%] blur-[32px]"></div>
                 </div>

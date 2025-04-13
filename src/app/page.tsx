@@ -2,6 +2,24 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import React from 'react';
+import { HaveSignedIn } from "./components";
+import { User } from "./user";
+
+// Get started button component
+function GetStarted({signin}: {signin: boolean}) {
+    const router = useRouter();
+
+    if (!signin) {
+        return (
+            <button className="solid-button text-[12pt] w-[240px]" onClick={() => router.push("/signin")}>Let&apos;s Get Started&nbsp;&nbsp;-&gt;</button>
+        )
+    };
+
+    return (
+        <button className="solid-button text-[12pt] w-[240px]" onClick={() => router.push("/task")}>Let&apos;s Get Started&nbsp;&nbsp;-&gt;</button>
+    );
+}
 
 export default function Home() {
     const router = useRouter();
@@ -12,6 +30,10 @@ export default function Home() {
     const [textIndex, setTextIndex] = useState(0);
     const [isDeleting, setIsDeleting] = useState(false);
     const [pause, setPause] = useState(false);
+
+    // Get user status and data
+    const userInstance = User.getInstance();
+    const fullName = userInstance.getFullName();
 
     // Typing and deleting logic
     useEffect(() => {
@@ -56,18 +78,12 @@ export default function Home() {
     }, [pause]);
 
     return (
-        <div className="flex flex-col w-full h-full items-center">
+        <div className="flex flex-col w-full h-screen items-center overflow-hidden">
             {/* Header */}
             <div className="header-text fixed w-full flex flex-row top-[4%] items-center justify-between">
                 <button className="link-button text-[12pt] font-semibold" onClick={() => router.push("/")}>TaskStack</button>
                 <div className="flex gap-[1.6em] items-center justify-center">
-                    {/* TODO: Add conditions  */}
-                    <button className="link-button text-[10pt] flex flex-col justify-center items-center text-center" onClick={() => router.push("/signin")}>
-                        Sign In
-                    </button>
-                    <button className="link-button text-[10pt] flex flex-col justify-center items-center text-center" onClick={() => router.push("/signup")}>
-                        Sign Up
-                    </button>
+                    <HaveSignedIn signin={userInstance.getSigninStatus()} fullName={fullName}/>
                 </div>
             </div>
 
@@ -92,28 +108,37 @@ export default function Home() {
                 <h1 className="text-[64pt] m-0 text-center font-bold">Welcome</h1>
                 <h2 className="text-[16pt] m-0 text-center flex items-center gap-[0.4em]">
                     TaskStack.
-                    <ins className="hastag">{displayedText}</ins>
+                    <ins className="typing">{displayedText}</ins>
                 </h2>
             </div>
 
             {/* Button */}
-            <div className="front absolute w-full h-[30%] top-[60%] gap-[1.2em] flex flex-row items-center justify-center">
-                {/* TODO: Add a function to this button to handle event  */}
-                <button className="solid-button text-[12pt] w-[200px]">Let's Get Started</button>
+            <div className="front absolute w-full h-[30%] bottom-25 gap-[1.2em] flex flex-row items-center justify-center">
+                <GetStarted signin={userInstance.getSigninStatus()} />
             </div>
 
             {/* Footer */}
-            <div className="front footer absolute w-full h-[10%] top-[100%] flex flex-col items-center justify-end">
+            <div className="front footer absolute w-full h-[10%] bottom-10 flex flex-col items-center justify-end">
                 <p className="text-[8pt]">Copyright &copy; 2025 TaskStack. All rights reserved.</p>
             </div>
 
             {/* Purple cicle silhouette background */}
-            <div className="background absolute flex justify-center w-[120vw] h-[65vh] overflow-hidden">
+            <div className="background absolute flex justify-center w-[120vw] h-[50vh] bottom-0 overflow-hidden">
                 <div className="circle-silhouette-outer translate-y-[2em] overflow-hidden absolute w-full h-[120%] rounded-t-[100%]"></div>
                 <div className="circle-silhouette-outer translate-y-[2em] overflow-hidden absolute w-full h-[120%] flex justify-center items-center rounded-t-[100%] blur-[12px] brightness-[120%]">
                     <div className="circle-silhouette-inner translate-y-[-2px] w-[120%] h-[102%] rounded-t-[100%] blur-[32px]"></div>
                 </div>
             </div>
+
+            {/* Floating bubble animation */}
+            <div className="w-full h-full flex justify-center">
+                <div className="circle-glass floating-st w-[80px] h-[80px] z-[5] top-25 right-120 absolute rounded-[100%]" id="circle-glass"></div>
+                <div className="circle-glass floating-rd w-[80px] h-[80px] z-[5] top-35 right-35 absolute rounded-[100%]" id="circle-glass"></div>
+                <div className="circle-glass floating-nd w-[60px] h-[60px] z-[5] top-50 right-75 absolute rounded-[100%]" id="circle-glass"></div>
+                <div className="circle-glass floating-st w-[60px] h-[60px] z-[5] top-30 left-70 absolute rounded-[100%]" id="circle-glass"></div>
+                <div className="circle-glass floating-nd w-[70px] h-[70px] z-[5] top-50 left-30 absolute rounded-[100%]" id="circle-glass"></div>
+                <div className="circle-glass floating-rd w-[100px] h-[100px] z-[5] top-45 left-100 absolute rounded-[100%]" id="circle-glass"></div>
+            </div>
         </div>
-    );
+    )
 }
