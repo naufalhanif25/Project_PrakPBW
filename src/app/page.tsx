@@ -124,7 +124,7 @@ export default function Home() {
 
             {/* Purple cicle silhouette background */}
             <div className="background absolute flex justify-center w-[120vw] h-[50vh] bottom-0 overflow-hidden">
-                <div className="circle-silhouette-outer translate-y-[2em] overflow-hidden absolute w-full h-[120%] rounded-t-[100%]"></div>
+                <div className="circle-silhouette-outer glow translate-y-[2em] overflow-hidden absolute w-full h-[120%] rounded-t-[100%]"></div>
                 <div className="circle-silhouette-outer translate-y-[2em] overflow-hidden absolute w-full h-[120%] flex justify-center items-center rounded-t-[100%] blur-[12px] brightness-[120%]">
                     <div className="circle-silhouette-inner translate-y-[-2px] w-[120%] h-[102%] rounded-t-[100%] blur-[32px]"></div>
                 </div>

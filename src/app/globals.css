@@ -234,10 +234,23 @@ button {
 
 @keyframes scale-up-down {
     0%, 100% {
-        transform: scale(102%);
+        transform: scale(100%);
     }
     50% {
-        transform: scale(100%);
+        transform: scale(102%);
+    }
+}
+
+.glow {
+    animation: glow 2.5s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% {
+        filter: brightness(100%);
+    }
+    50% {
+        filter: brightness(120%);
     }
 }
 

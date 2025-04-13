@@ -75,15 +75,16 @@ function TaskContainer({signin}: {signin: boolean}) {
                 const todos = response.data.data;
                 
                 setTasks(todos);
-                setShowLoading(false);
             } 
-            catch (error) {
+            catch (error: any) {
                 console.error("Failed to fetch todos:", error);
                 
                 setErrorMessage("Failed to fetch task list. Please check your internet connection.");
                 setErrorTitle("Failed to Fetch Task List!");
-                setShowLoading(false);
                 setShowErrorPopup(true);
+            }
+            finally {
+                setShowLoading(false);
             }
         };
 
@@ -99,6 +100,8 @@ function TaskContainer({signin}: {signin: boolean}) {
         e.preventDefault();
         
         try {
+            setShowLoading(true);
+
             const response = await axios.post<{ data: TaskItem }>(
                 'https://api-todo-list-pbw.vercel.app/todo/createTodo',
                 { 
@@ -115,15 +118,16 @@ function TaskContainer({signin}: {signin: boolean}) {
 
             setTasks([...tasks, response.data.data]);
             setNewTask("");
-            setShowLoading(false);
         } 
-        catch (error) {
+        catch (error: any) {
             console.error('Error posting data:', error);
 
             setErrorMessage("Failed to add task. Please check your internet connection.");
             setErrorTitle("Failed to Add Task!");
-            setShowLoading(false);
             setShowErrorPopup(true);
+        }
+        finally {
+            setShowLoading(false);
         }
     };
 
@@ -132,6 +136,8 @@ function TaskContainer({signin}: {signin: boolean}) {
         const token = User.getInstance().getToken();
     
         try {
+            setShowLoading(true);
+
             const response = await axios.put<{ data: TaskItem }>(
                 `https://api-todo-list-pbw.vercel.app/todo/updateTodo/${taskId}`,
                 { 
@@ -151,21 +157,26 @@ function TaskContainer({signin}: {signin: boolean}) {
                 )
             );
             setEditingId(null);
-            setShowLoading(false);
-        } catch (error) {
+        } 
+        catch (error: any) {
             console.error("Edit failed:", error);
 
             setErrorMessage("Failed to edit task. Please try again.");
             setErrorTitle("Failed to Edit Task!");
-            setShowLoading(false);
             setShowErrorPopup(true);
+        }
+        finally {
+            setShowLoading(false);
         }
     };
 
     // Function to handle task deletion
     const handleDelete = async (id: string) => {
         const token = User.getInstance().getToken();
+        
         try {
+            setShowLoading(true);
+
             await axios.delete(`https://api-todo-list-pbw.vercel.app/todo/deleteTodo/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -173,15 +184,16 @@ function TaskContainer({signin}: {signin: boolean}) {
             });
     
             setTasks(prev => prev.filter(task => task._id !== id));
-            setShowLoading(false);
         } 
-        catch (error) {
+        catch (error: any) {
             console.error("Delete failed:", error);
 
             setErrorMessage("Failed to delete task. Please try again.");
             setErrorTitle("Failed to Delete Task!");
-            setShowLoading(false);
             setShowErrorPopup(true);
+        }
+        finally {
+            setShowLoading(false);
         }
     };    
 
@@ -196,7 +208,7 @@ function TaskContainer({signin}: {signin: boolean}) {
                     <p className="w-[12px]">{++listNum}</p>
                     <p className="date-text w-[80px]">{dateFormat}</p>
                     {editingId === task._id ? (
-                        <input className="task-input flex-grow text-[12pt]" autoFocus 
+                        <input className="task-input flex-grow text-[12pt]" autoFocus required
                             value={editedText} 
                             onChange={(e) => setEditedText(e.target.value)} 
                             onBlur={() => handleEditSave(task._id, true)} 
@@ -204,14 +216,13 @@ function TaskContainer({signin}: {signin: boolean}) {
                                 if (e.key === "Enter") {
                                     e.preventDefault();
                                     handleEditSave(task._id, true);
-                                    setShowLoading(true);
                                 }
                             }
                         }/>
                     ) : (
                         <p className="flex-grow">{task.text}</p>
                     )}
-                    <div className="task-icon" onClick={() => {
+                    <div className="task-icon z-100" onClick={() => {
                         if (!onEdit) {
                             setEditingId(task._id);
                             setEditedText(task.text);
@@ -219,7 +230,6 @@ function TaskContainer({signin}: {signin: boolean}) {
                         }
                         else {
                             handleEditSave(task._id, true);
-                            setShowLoading(true);
                             setOnEdit(false);
                         }
                     }}>
@@ -227,10 +237,7 @@ function TaskContainer({signin}: {signin: boolean}) {
                             <path d="M31.25 7.003c0-0 0-0.001 0-0.001 0-0.346-0.14-0.659-0.365-0.886l-5-5c-0.227-0.226-0.539-0.366-0.885-0.366s-0.658 0.14-0.885 0.366v0l-20.999 20.999c-0.146 0.146-0.256 0.329-0.316 0.532l-0.002 0.009-2 7c-0.030 0.102-0.048 0.22-0.048 0.342 0 0.691 0.559 1.251 1.25 1.252h0c0.126-0 0.248-0.019 0.363-0.053l-0.009 0.002 6.788-2c0.206-0.063 0.383-0.17 0.527-0.311l-0 0 21.211-21c0.229-0.226 0.37-0.539 0.371-0.886v-0zM8.133 26.891l-4.307 1.268 1.287-4.504 14.891-14.891 3.219 3.187zM25 10.191l-3.228-3.196 3.228-3.228 3.229 3.228z"></path>
                         </svg>
                     </div>
-                    <div className="task-icon" onClick={() => {
-                        onDelete(task._id)
-                        setShowLoading(true);
-                    }}>
+                    <div className="task-icon z-100" onClick={() => onDelete(task._id)}>
                         <svg className="w-full h-full" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
                             <path d="M896.8 159.024l-225.277.001V71.761c0-40.528-33.008-72.496-73.536-72.496H426.003c-40.528 0-73.52 31.968-73.52 72.496v87.264h-225.28c-17.665 0-32 14.336-32 32s14.335 32 32 32h44.015l74.24 739.92c3.104 34.624 32.608 61.776 67.136 61.776h398.8c34.528 0 64-27.152 67.088-61.472l74.303-740.24h44.016c17.68 0 32-14.336 32-32s-14.32-31.985-32-31.985zM416.482 71.762c0-5.232 4.271-9.505 9.52-9.505h171.984c5.248 0 9.536 4.273 9.536 9.505v87.264h-191.04zm298.288 885.44c-.16 1.777-2.256 3.536-3.376 3.536h-398.8c-1.12 0-3.232-1.744-3.425-3.84l-73.632-733.856H788.45z"/>
                         </svg>
@@ -247,7 +254,7 @@ function TaskContainer({signin}: {signin: boolean}) {
                     <div className="glass form w-[80vw] h-[70vh] flex flex-col gap-[1.2em] items-center justify-start">
                         <form className="w-full flex flex-row gap-[16px]" onSubmit={handleSubmit}>
                             <input type="text" id="taskname" placeholder="Add a task" className="input w-full text-[12pt]" value={newTask} onChange={(e) => setNewTask(e.target.value)} required/>
-                            <button type="submit" className="solid-button text-[12pt] w-[200px]" onClick={() => setShowLoading(true)}>Add task</button>
+                            <button type="submit" className="solid-button text-[12pt] w-[200px]">Add task</button>
                         </form>
                         <div className="task-container w-full flex flex-col flex-grow overflow-auto">
                             {tasks.length > 0 ? (
