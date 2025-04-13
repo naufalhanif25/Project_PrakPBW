@@ -1,96 +1,44 @@
-"use client";
+"use client";  // Marks this component as a Client Component
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import axios from "axios";
 import { HaveSignedIn } from "../components";
-import { User, getData } from "../user";
+import { User } from "../user";
 
-export default function About() {
+export default function Signin() {
     const router = useRouter();
-    const BASE_URL = "https://api-todo-list-pbw.vercel.app";
 
-    const user = User.getInstance();
-    const [fullname, setFullname] = useState<string>('');
-    const [token, setToken] = useState<string | null>(null);
-    const [userId, setUserId] = useState<string | null>(null);
-    const isLoggedIn = user.getSigninStatus();
-
-    useEffect(() => {
-        // Mengambil data user secara asinkron
-        const fetchUserData = async () => {
-            const [name] = await getData(); // Menunggu Promise untuk mendapatkan fullname
-            setFullname(name); // Menyimpan fullname ke state
-
-            const storedToken = localStorage.getItem("token");
-            const storedUserId = localStorage.getItem("userId");
-            if (storedToken && storedUserId) {
-                setToken(storedToken);
-                setUserId(storedUserId);
-            }
-        };
-
-        fetchUserData();
-    }, []);
-
-    const handleLogout = async () => {
-        if (!userId || !token) return;
-
-        try {
-            await axios.post(`${BASE_URL}/auth/logout/${userId}`, {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            localStorage.removeItem("token");
-            localStorage.removeItem("userId");
-            router.push("/signin");
-        } catch (error) {
-            console.error("Logout failed", error);
-        }
-    };
+    // Get user status and data
+    const userInstance = User.getInstance();
+    const fullName = userInstance.getFullName()
 
     return (
         <div className="flex flex-col w-full h-screen items-center overflow-hidden">
             {/* Header */}
-            <div className="header-text fixed w-full flex flex-row top-[4%] items-center justify-between px-4">
-                <button className="link-button text-[12pt] font-semibold" onClick={() => router.push("/")}>
-                    TaskStack
-                </button>
+            <div className="header-text fixed w-full flex flex-row top-[4%] items-center justify-between">
+                <button className="link-button text-[12pt] font-semibold" onClick={() => router.push("/")}>TaskStack</button>
                 <div className="flex gap-[1.6em] items-center justify-center">
-                    {isLoggedIn ? (
-                        <>
-                            <HaveSignedIn signin={true} name={fullname} />
-                            <button className="link-button text-[10pt]" onClick={handleLogout}>Logout</button>
-                        </>
-                    ) : (
-                        <>
-                            <button className="link-button text-[10pt]" onClick={() => router.push("/signin")}>Sign In</button>
-                            <button className="link-button text-[10pt]" onClick={() => router.push("/signup")}>Sign Up</button>
-                        </>
-                    )}
+                    <HaveSignedIn signin={userInstance.getSigninStatus()} fullName={fullName}/>
                 </div>
             </div>
 
             {/* Navigation bar */}
             <div className="glass fixed flex gap-[2.4em] top-[4%] items-center justify-center">
-                <button className="header-button text-[12pt]" onClick={() => router.push("/")}>
+                <button className="header-button text-[12pt] flex flex-col justify-center items-center text-center" onClick={() => router.push("/")}>
                     Home
                     <hr className="button-underline" />
                 </button>
-                <button className="header-button text-[12pt]" onClick={() => router.push("/task")}>
+                <button className="header-button text-[12pt] flex flex-col justify-center items-center text-center" onClick={() => router.push("/task")}>
                     Task
                     <hr className="button-underline" />
                 </button>
-                <button className="header-button text-[12pt]" onClick={() => router.push("/about")}>
+                <button className="header-button text-[12pt] flex flex-col justify-center items-center text-center" onClick={() => router.push("/about")}>
                     About
                     <hr className="button-underline" />
                 </button>
             </div>
 
             {/* Main container */}
-            <div className="w-screen h-screen fixed flex items-center justify-center">
+            <div className="w-screen h-screen top-0 fixed flex items-center justify-center">
                 <div className="glass form w-[80vw] flex flex-col gap-[1.2em] items-center justify-center">
                     <h1 className="text-[16pt] font-semibold">About</h1>
                     <p className="text-[12pt] w-full text-center">
@@ -104,11 +52,11 @@ export default function About() {
                 <p className="text-[8pt]">Copyright &copy; 2025 TaskStack. All rights reserved.</p>
             </div>
 
-            {/* Purple circle silhouette background */}
+            {/* Purple cicle silhouette background */}
             <div className="background absolute flex justify-center w-[120vw] h-[50vh] bottom-[0%] overflow-hidden">
-                <div className="circle-silhouette-outer translate-y-[2em] absolute w-full h-[120%] rounded-t-[100%]" />
-                <div className="circle-silhouette-outer translate-y-[2em] absolute w-full h-[120%] flex justify-center items-center rounded-t-[100%] blur-[12px] brightness-[120%]">
-                    <div className="circle-silhouette-inner translate-y-[-2px] rounded-t-[100%] blur-[32px]" />
+                <div className="translate-y-[2em] overflow-hidden absolute w-full h-[120%] rounded-t-[100%]"></div>
+                <div className="circle-silhouette-outer translate-y-[2em] overflow-hidden absolute w-full h-[120%] flex justify-center items-center rounded-t-[100%] blur-[12px] brightness-[120%]">
+                    <div className="circle-silhouette-inner translate-y-[-2px] rounded-t-[100%] blur-[32px]"></div>
                 </div>
             </div>
         </div>
