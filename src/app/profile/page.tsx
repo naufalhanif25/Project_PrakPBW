@@ -44,15 +44,7 @@ export default function Profile() {
         try {
             setShowLoading(true);
 
-            await axios.post(
-                "https://api-todo-list-pbw.vercel.app/auth/logout",
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${user.token}`
-                    }
-                }
-            );
+            await axios.post(`https://api-todo-list-pbw.vercel.app/auth/logout/${user._id}`);
             
             localStorage.removeItem("user");
             router.push("/");
