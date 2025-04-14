@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import React from 'react';
 import { HaveSignedIn } from "./components";
-import { User } from "./user";
 
 // Get started button component
 function GetStarted({signin}: {signin: boolean}) {
@@ -31,9 +30,21 @@ export default function Home() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [pause, setPause] = useState(false);
 
-    // Get user status and data
-    const userInstance = User.getInstance();
-    const fullName = userInstance.getFullName();
+    const [user, setUser] = useState<{
+        _id: string;
+        fullName: string;
+        email: string;
+        token: string;
+        status: boolean;
+    }>({_id: '', fullName: '', email: '', token: '', status: false});
+
+    useEffect(() => {
+        const savedUser = localStorage.getItem("user");
+
+        if (savedUser) {
+            setUser(JSON.parse(savedUser));
+        }
+    }, []);
 
     // Typing and deleting logic
     useEffect(() => {
@@ -83,7 +94,7 @@ export default function Home() {
             <div className="header-text fixed w-full flex flex-row top-[4%] items-center justify-between">
                 <button className="link-button text-[12pt] font-semibold" onClick={() => router.push("/")}>TaskStack</button>
                 <div className="flex gap-[1.6em] items-center justify-center">
-                    <HaveSignedIn signin={userInstance.getSigninStatus()} fullName={fullName}/>
+                    <HaveSignedIn signin={user.status} fullName={user.fullName}/>
                 </div>
             </div>
 
@@ -114,7 +125,7 @@ export default function Home() {
 
             {/* Button */}
             <div className="front absolute w-full h-[30%] bottom-25 gap-[1.2em] flex flex-row items-center justify-center">
-                <GetStarted signin={userInstance.getSigninStatus()} />
+                <GetStarted signin={user.status} />
             </div>
 
             {/* Footer */}

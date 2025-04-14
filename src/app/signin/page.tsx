@@ -2,9 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { User } from "../user";
 import { Popup, Loading } from "../components";
-import { Exception } from "../exceptions";
 import axios from 'axios';
 
 // APIResponse type
@@ -20,8 +18,6 @@ type APIResponse = {
 
 export default function Signin() {
     const router = useRouter();
-    const userInstance = User.getInstance();
-    const pageException = Exception.getInstance();
 
     const [formData, setFormData] = useState({ email: '', password: ''});
 
@@ -30,6 +26,14 @@ export default function Signin() {
     const [errorMessage, setErrorMessage] = useState("");
     const [firstClick, setFirstClick] = useState(true);
     const [passwordState, setPasswordState] = useState("password");
+    
+    useEffect(() => {
+        const savedUser = localStorage.getItem("user");
+
+        if (savedUser) {
+            router.push("/");
+        }
+    }, []);
 
     // Function to handle the sign in process
     const handleSignIn = async (e: React.FormEvent) => {
@@ -58,12 +62,17 @@ export default function Signin() {
             const { _id, fullName, email, token } = response.data.data;
           
             console.log('Response:', response.data);
+
+            let status = true;
+
+            localStorage.setItem("user", JSON.stringify({
+                _id,
+                fullName,
+                email,
+                token,
+                status,
+            }));
             
-            userInstance.setUserId(_id);
-            userInstance.setFullName(fullName);
-            userInstance.setEmail(email);
-            userInstance.setToken(token);
-            userInstance.setSigninStatus(true);
             router.push("/");
         } 
         catch (error: any) {
@@ -89,25 +98,11 @@ export default function Signin() {
         }
     }
 
-    useEffect(() => {
-        if (userInstance.getSigninStatus()) {
-            router.back();
-        }
-    }, []);
-
     return (
         <div className="flex flex-col w-full h-screen items-center overflow-hidden">
             {/* Header */}
             <div className="header-text fixed w-full flex flex-row top-[4%] items-center justify-between">
-                <button className="link-button text-[12pt] font-semibold" onClick={() => {
-                    if (!userInstance.getSigninStatus() && pageException.getStatus()) {
-                        window.history.go(-2);
-                        pageException.setStatus(false);
-                    }
-                    else {
-                        router.back();
-                    }
-                }}>&lt;-</button>
+                <button className="link-button text-[12pt] font-semibold" onClick={() => router.back()}>&lt;-</button>
             </div>
 
             {/* Form */}

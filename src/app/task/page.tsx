@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { HaveSignedIn, Popup, Loading } from "../components";
-import { User } from "../user";
 import axios from 'axios';
 
 // TaskItem type
@@ -58,13 +57,29 @@ function TaskContainer({signin}: {signin: boolean}) {
     const [errorMessage, setErrorMessage] = useState("");
     const [onEdit, setOnEdit] = useState(false);
 
+    const [user, setUser] = useState<{
+        _id: string;
+        fullName: string;
+        email: string;
+        token: string;
+        status: boolean;
+    }>({_id: '', fullName: '', email: '', token: '', status: false});
+    
+    useEffect(() => {
+        const savedUser = localStorage.getItem("user");
+    
+        if (savedUser) {
+            setUser(JSON.parse(savedUser));
+        }
+    }, []);
+
     // Fetching tasks from the API
     useEffect(() => {
         setShowLoading(true);
 
         const fetchTodos = async () => {
             try {
-                const token = User.getInstance().getToken();
+                const token = user.token;
 
                 const response = await axios.get<TaskRespone>('https://api-todo-list-pbw.vercel.app/todo/getAllTodos', {
                     headers: {
@@ -95,7 +110,7 @@ function TaskContainer({signin}: {signin: boolean}) {
 
     // Function to handle added tasks
     const handleSubmit = async (e: React.FormEvent) => {
-        const token = User.getInstance().getToken();
+        const token = user.token;
 
         e.preventDefault();
         
@@ -133,7 +148,7 @@ function TaskContainer({signin}: {signin: boolean}) {
 
     // Functions to handle task editing
     const handleEditSave = async (taskId: string, checkList: boolean) => {
-        const token = User.getInstance().getToken();
+        const token = user.token;
     
         try {
             setShowLoading(true);
@@ -172,7 +187,7 @@ function TaskContainer({signin}: {signin: boolean}) {
 
     // Function to handle task deletion
     const handleDelete = async (id: string) => {
-        const token = User.getInstance().getToken();
+        const token = user.token;
         
         try {
             setShowLoading(true);
@@ -297,10 +312,21 @@ function TaskContainer({signin}: {signin: boolean}) {
 export default function Signin() {
     const router = useRouter();
 
-    // Get user status and data
-    const userInstance = User.getInstance();
-    const fullName = userInstance.getFullName();
-    const signin = userInstance.getSigninStatus();
+    const [user, setUser] = useState<{
+        _id: string;
+        fullName: string;
+        email: string;
+        token: string;
+        status: boolean;
+    }>({_id: '', fullName: '', email: '', token: '', status: false});
+    
+    useEffect(() => {
+        const savedUser = localStorage.getItem("user");
+    
+        if (savedUser) {
+          setUser(JSON.parse(savedUser));
+        }
+    }, []);
 
     return (
         <div className="flex flex-col w-full h-full items-center overflow-hidden">
@@ -308,7 +334,7 @@ export default function Signin() {
             <div className="header-text fixed w-full flex flex-row top-[4%] items-center justify-between">
                 <button className="link-button text-[12pt] font-semibold" onClick={() => router.push("/")}>TaskStack</button>
                 <div className="flex gap-[1.6em] items-center justify-center">
-                    <HaveSignedIn signin={userInstance.getSigninStatus()} fullName={fullName}/>
+                    <HaveSignedIn signin={user.status} fullName={user.fullName}/>
                 </div>
             </div>
 
@@ -329,7 +355,7 @@ export default function Signin() {
             </div>
 
             {/* Main container */}
-            <TaskContainer signin={signin} />
+            <TaskContainer signin={user.status} />
 
             {/* Footer */}
             <div className="front footer fixed w-full h-[10%] bottom-10 flex flex-col items-center justify-end">

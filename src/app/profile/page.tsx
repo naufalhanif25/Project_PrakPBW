@@ -2,23 +2,40 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { User } from "../user";
 import { Popup, Loading } from "../components";
-import { Exception } from "../exceptions";
 import axios from 'axios';
 
-export default function Signup() {
+export default function Profile() {
     const router = useRouter();
-    const userInstance = User.getInstance();
-    const pageException = Exception.getInstance();
-
-    // Get user data
-    const fullName = userInstance.getFullName();
-    const email = userInstance.getEmail();
 
     const [showErrorPopup, setShowErrorPopup] = useState(false);
     const [showLoading, setShowLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+
+    const [user, setUser] = useState<{
+        _id: string;
+        fullName: string;
+        email: string;
+        token: string;
+        status: boolean;
+    }>({_id: '', fullName: '', email: '', token: '', status: false});
+    
+    useEffect(() => {
+        const savedUser = localStorage.getItem("user");
+
+        if (savedUser) {
+            const parsedUser = JSON.parse(savedUser);
+
+            setUser(parsedUser);
+
+            if (!parsedUser.status) {
+                router.push("/signin");
+            }
+        }
+        else {
+            router.push("/signin");
+        }
+    }, []);
 
     // Function to handle the sign out process
     const handleSignOut = async (e: React.FormEvent) => {
@@ -32,12 +49,12 @@ export default function Signup() {
                 {},
                 {
                     headers: {
-                        Authorization: `Bearer ${userInstance.getToken()}`
+                        Authorization: `Bearer ${user.token}`
                     }
                 }
             );
             
-            userInstance.resetAll();
+            localStorage.removeItem("user");
             router.push("/");
         } 
         catch (error: any) {
@@ -51,13 +68,6 @@ export default function Signup() {
         }
     };
 
-    useEffect(() => {
-        if (!userInstance.getSigninStatus()) {
-            router.push("/signin");
-            pageException.setStatus(true);
-        }
-    }, []);
-
     return (
         <div className="flex flex-col w-full h-screen items-center overflow-hidden">
             {/* Header */}
@@ -70,8 +80,8 @@ export default function Signup() {
                 <div className="glass form w-[420px] fixed flex flex-col gap-[2.4em] items-center justify-center">
                     <div className="flex flex-row gap-[24px] w-full items-center justify-start">
                         <div className="flex flex-col gap-[8px] flex-grow">
-                            <h1 className="text-[20pt] font-semibold">{fullName}</h1>
-                            <p className="text-[12px]">{email}</p>
+                            <h1 className="text-[20pt] font-semibold">{user.fullName}</h1>
+                            <p className="text-[12px]">{user.email}</p>
                         </div>
                         <svg className="profile-icon w-[64px] h-[64px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
                             <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
