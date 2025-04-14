@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { User } from "../user";
 import { Popup, Loading } from "../components";
 import axios from 'axios';
 
@@ -19,7 +18,6 @@ type APIResponse = {
 
 export default function Signup() {
     const router = useRouter();
-    const userInstance = User.getInstance();
 
     const [formData, setFormData] = useState({ email: '', fullName: '' , password: ''});
 
@@ -29,6 +27,14 @@ export default function Signup() {
     const [firstClick, setFirstClick] = useState(true);
     const [passwordState, setPasswordState] = useState("password");
 
+    useEffect(() => {
+        const savedUser = localStorage.getItem("user");
+
+        if (savedUser) {
+            router.push("/");
+        }
+    }, []);
+    
     // Function to handle the sign up process
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -57,12 +63,17 @@ export default function Signup() {
             const { _id, fullName, email, token } = response.data.data;
           
             console.log('Response:', response.data);
+
+            let status = true;
+
+            localStorage.setItem("user", JSON.stringify({
+                _id,
+                fullName,
+                email,
+                token,
+                status,
+            }));
             
-            userInstance.setUserId(_id);
-            userInstance.setFullName(fullName);
-            userInstance.setEmail(email);
-            userInstance.setToken(token);
-            userInstance.setSigninStatus(true);
             router.push("/");
         } 
         catch (error: any) {
@@ -87,12 +98,6 @@ export default function Signup() {
             setFirstClick(true);
         }
     }
-
-    useEffect(() => {
-        if (userInstance.getSigninStatus()) {
-            router.back();
-        }
-    }, []);
 
     return (
         <div className="flex flex-col w-full h-screen items-center overflow-hidden">

@@ -1,15 +1,27 @@
 "use client";  // Marks this component as a Client Component
 
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { HaveSignedIn } from "../components";
-import { User } from "../user";
 
 export default function Signin() {
     const router = useRouter();
 
-    // Get user status and data
-    const userInstance = User.getInstance();
-    const fullName = userInstance.getFullName()
+    const [user, setUser] = useState<{
+        _id: string;
+        fullName: string;
+        email: string;
+        token: string;
+        status: boolean;
+    }>({_id: '', fullName: '', email: '', token: '', status: false});
+
+    useEffect(() => {
+        const savedUser = localStorage.getItem("user");
+
+        if (savedUser) {
+            setUser(JSON.parse(savedUser));
+        }
+    }, []);
 
     return (
         <div className="flex flex-col w-full h-screen items-center overflow-hidden">
@@ -17,7 +29,7 @@ export default function Signin() {
             <div className="header-text fixed w-full flex flex-row top-[4%] items-center justify-between">
                 <button className="link-button text-[12pt] font-semibold" onClick={() => router.push("/")}>TaskStack</button>
                 <div className="flex gap-[1.6em] items-center justify-center">
-                    <HaveSignedIn signin={userInstance.getSigninStatus()} fullName={fullName}/>
+                    <HaveSignedIn signin={user.status} fullName={user.fullName}/>
                 </div>
             </div>
 
